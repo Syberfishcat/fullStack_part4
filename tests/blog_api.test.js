@@ -111,6 +111,23 @@ describe('api test', () => {
     const ids = blogsAtEnd.map(blog => blog.id)
     assert(!ids.includes(blog.id))
   })
+
+  test('modify likes number of a blog', async () => {
+    const blogsAtInitial = await helper.blogsInDb()
+    const blog = blogsAtInitial[0]
+    const initialLikes = blog.likes
+    
+    blog.likes += 1
+    await api
+        .put(`/api/blogs/${blog.id}`)
+        .send(blog)
+        .expect(200)
+        .expect('Content-Type', /application\/json/)
+
+    const updatedBlog = await Blog.findById(blog.id)
+    
+    assert.strictEqual(initialLikes + 1, updatedBlog.likes)
+  })
 })
 
 test('dummy returns one', () => {
