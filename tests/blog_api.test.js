@@ -35,6 +35,27 @@ test('the unique identifier property of blogs is named id', async () => {
   })
 })
 
+test('a blog can be added', async () => {
+  const newBlog =   {
+    title: 'Add blog test',
+    author: 'yqs',
+    url: 'https://homepages.cwi.nl/~storm/teaching/reader/Dijkstra68.pdf',
+    likes: 5
+  }
+
+  await api
+    .post('/api/blogs')
+    .send(newBlog)
+    .expect(201)
+    .expect('Content-Type', /application\/json/)
+
+  const blogsAtEnd = await helper.blogsInDb()
+  assert.strictEqual(blogsAtEnd.length, helper.initialBlogs.length + 1)
+
+  const titles = blogsAtEnd.map(blog => blog.title)
+  assert(titles.includes('Add blog test'))
+})
+
 test('dummy returns one', () => {
   const result = listHelper.dummy([])
   assert.strictEqual(result, 1)
