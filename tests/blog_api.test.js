@@ -56,6 +56,22 @@ test('a blog can be added', async () => {
   assert(titles.includes('Add blog test'))
 })
 
+test('default likes can be added', async () => {
+  const newBlog =   {
+    title: 'Add blog test',
+    author: 'yqs',
+    url: 'https://homepages.cwi.nl/~storm/teaching/reader/Dijkstra68.pdf',
+  }
+
+  const response = await api
+    .post('/api/blogs')
+    .send(newBlog)
+    .expect(201)
+    .expect('Content-Type', /application\/json/)
+
+  assert.strictEqual(response.body.likes, 0)
+})
+
 test('dummy returns one', () => {
   const result = listHelper.dummy([])
   assert.strictEqual(result, 1)
