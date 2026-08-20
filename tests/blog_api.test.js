@@ -97,6 +97,20 @@ describe('api test', () => {
     const blogsAtEnd = await helper.blogsInDb()
     assert.strictEqual(blogsAtEnd.length, helper.initialBlogs.length)
   })
+
+  test('deletion of a blog with valid id', async () => {
+    const blogsAtInitial = await helper.blogsInDb()
+    const blog = blogsAtInitial[0]
+    await api
+      .delete(`/api/blogs/${blog.id}`)
+      .expect(204)
+    
+    const blogsAtEnd = await helper.blogsInDb()
+    assert.strictEqual(blogsAtEnd.length, helper.initialBlogs.length - 1)
+
+    const ids = blogsAtEnd.map(blog => blog.id)
+    assert(!ids.includes(blog.id))
+  })
 })
 
 test('dummy returns one', () => {
