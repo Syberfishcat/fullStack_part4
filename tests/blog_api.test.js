@@ -26,6 +26,15 @@ test('all blogs are returned', async () => {
   assert.strictEqual(response.body.length, helper.initialBlogs.length)
 })
 
+test('the unique identifier property of blogs is named id', async () => {
+  const response = await api.get('/api/blogs')
+
+  response.body.forEach(blog => {
+    assert.ok(blog.id)
+    assert.strictEqual(blog._id, undefined)
+  })
+})
+
 test('dummy returns one', () => {
   const result = listHelper.dummy([])
   assert.strictEqual(result, 1)
