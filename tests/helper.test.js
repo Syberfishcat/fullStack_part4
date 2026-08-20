@@ -1,24 +1,30 @@
-const { test, describe } = require('node:test')
+const { test, after, describe, beforeEach } = require('node:test')
 const assert = require('node:assert')
+const mongoose = require('mongoose')
 const listHelper = require('../utils/list_helper')
-// const supertest = require('supertest')
-// const app = require('../app')
+const supertest = require('supertest')
+const app = require('../app')
 const helper = require('./test_helper')
+const Blog = require('../models/blog')
 
-// const api = supertest(app)
+const api = supertest(app)
 
-// test('blogs are returned as json', async () => {
-//   await api
-//     .get('/api/blogs')
-//     .expect(200)
-//     .expect('Content-Type', /application\/json/)
-// })
+beforeEach(async () => {
+  await Blog.deleteMany({})
+  await Blog.insertMany(helper.initialBlogs)
+})
 
-// test('all blogs are returned', async () => {
-//   const response = await api.get('/api/blogs')
+test('blogs are returned as json', async () => {
+  await api
+    .get('/api/blogs')
+    .expect(200)
+    .expect('Content-Type', /application\/json/)
+})
 
-//   assert.strictEqual(response.body.length, helper.initialNotes.length)
-// })
+test('all blogs are returned', async () => {
+  const response = await api.get('/api/blogs')
+  assert.strictEqual(response.body.length, helper.initialBlogs.length)
+})
 
 test('dummy returns one', () => {
   const result = listHelper.dummy([])
@@ -103,4 +109,8 @@ describe('author with most likes', () => {
       likes: 17
     })
   })
+})
+
+after(async () => {
+  await mongoose.connection.close()
 })
