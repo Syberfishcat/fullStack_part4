@@ -14,62 +14,89 @@ beforeEach(async () => {
   await Blog.insertMany(helper.initialBlogs)
 })
 
-test('blogs are returned as json', async () => {
-  await api
-    .get('/api/blogs')
-    .expect(200)
-    .expect('Content-Type', /application\/json/)
-})
-
-test('all blogs are returned', async () => {
-  const response = await api.get('/api/blogs')
-  assert.strictEqual(response.body.length, helper.initialBlogs.length)
-})
-
-test('the unique identifier property of blogs is named id', async () => {
-  const response = await api.get('/api/blogs')
-
-  response.body.forEach(blog => {
-    assert.ok(blog.id)
-    assert.strictEqual(blog._id, undefined)
+describe('api test', () => {
+  test('blogs are returned as json', async () => {
+    await api
+      .get('/api/blogs')
+      .expect(200)
+      .expect('Content-Type', /application\/json/)
   })
-})
-
-test('a blog can be added', async () => {
-  const newBlog =   {
-    title: 'Add blog test',
-    author: 'yqs',
-    url: 'https://homepages.cwi.nl/~storm/teaching/reader/Dijkstra68.pdf',
-    likes: 5
-  }
-
-  await api
-    .post('/api/blogs')
-    .send(newBlog)
-    .expect(201)
-    .expect('Content-Type', /application\/json/)
-
-  const blogsAtEnd = await helper.blogsInDb()
-  assert.strictEqual(blogsAtEnd.length, helper.initialBlogs.length + 1)
-
-  const titles = blogsAtEnd.map(blog => blog.title)
-  assert(titles.includes('Add blog test'))
-})
-
-test('default likes can be added', async () => {
-  const newBlog =   {
-    title: 'Add blog test',
-    author: 'yqs',
-    url: 'https://homepages.cwi.nl/~storm/teaching/reader/Dijkstra68.pdf',
-  }
-
-  const response = await api
-    .post('/api/blogs')
-    .send(newBlog)
-    .expect(201)
-    .expect('Content-Type', /application\/json/)
-
-  assert.strictEqual(response.body.likes, 0)
+  
+  test('all blogs are returned', async () => {
+    const response = await api.get('/api/blogs')
+    assert.strictEqual(response.body.length, helper.initialBlogs.length)
+  })
+  
+  test('the unique identifier property of blogs is named id', async () => {
+    const response = await api.get('/api/blogs')
+  
+    response.body.forEach(blog => {
+      assert.ok(blog.id)
+      assert.strictEqual(blog._id, undefined)
+    })
+  })
+  
+  test('a blog can be added', async () => {
+    const newBlog =   {
+      title: 'Add blog test',
+      author: 'yqs',
+      url: 'https://homepages.cwi.nl/~storm/teaching/reader/Dijkstra68.pdf',
+      likes: 5
+    }
+  
+    await api
+      .post('/api/blogs')
+      .send(newBlog)
+      .expect(201)
+      .expect('Content-Type', /application\/json/)
+  
+    const blogsAtEnd = await helper.blogsInDb()
+    assert.strictEqual(blogsAtEnd.length, helper.initialBlogs.length + 1)
+  
+    const titles = blogsAtEnd.map(blog => blog.title)
+    assert(titles.includes('Add blog test'))
+  })
+  
+  test('default likes can be added', async () => {
+    const newBlog =   {
+      title: 'Add blog test',
+      author: 'yqs',
+      url: 'https://homepages.cwi.nl/~storm/teaching/reader/Dijkstra68.pdf',
+    }
+  
+    const response = await api
+      .post('/api/blogs')
+      .send(newBlog)
+      .expect(201)
+      .expect('Content-Type', /application\/json/)
+  
+    assert.strictEqual(response.body.likes, 0)
+  })
+  
+  test('title or url missing responds 400 code', async () => {
+    const newBlog1 =   {
+      author: 'yqs',
+      url: 'https://homepages.cwi.nl/~storm/teaching/reader/Dijkstra68.pdf',
+      likes: 5
+    }
+    const newBlog2 =   {
+      title: 'Add blog test',
+      author: 'yqs',
+      likes: 5
+    }
+    await api
+      .post('/api/blogs')
+      .send(newBlog1)
+      .expect(400)
+  
+    await api
+      .post('/api/blogs')
+      .send(newBlog2)
+      .expect(400)
+    
+    const blogsAtEnd = await helper.blogsInDb()
+    assert.strictEqual(blogsAtEnd.length, helper.initialBlogs.length)
+  })
 })
 
 test('dummy returns one', () => {
